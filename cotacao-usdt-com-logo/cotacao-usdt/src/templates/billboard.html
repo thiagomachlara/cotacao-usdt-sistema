@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">USDT/BRL Billboard - 1A1 Cripto</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .billboard-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 60px 80px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo-billboard {
+            height: 80px;
+            width: auto;
+            max-width: 400px;
+            object-fit: contain;
+            filter: brightness(1.1);
+        }
+
+        .pair-title {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .price-display {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .spot-price {
+            font-size: 1.2em;
+            color: #b0c4de;
+            margin-bottom: 10px;
+        }
+
+        .spot-value {
+            font-size: 2em;
+            color: #87ceeb;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .spread-info {
+            font-size: 1.3em;
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .final-price {
+            font-size: 4.5em;
+            font-weight: bold;
+            color: #00ff7f;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            margin-bottom: 10px;
+        }
+
+        .currency {
+            font-size: 1.5em;
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .update-info {
+            margin-top: 30px;
+            font-size: 1em;
+            color: #b0c4de;
+            opacity: 0.8;
+        }
+
+        .loading {
+            font-size: 1.5em;
+            color: #ffd700;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 1.2em;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .billboard-container {
+                padding: 40px 30px;
+            }
+            
+            .pair-title {
+                font-size: 2.5em;
+            }
+            
+            .final-price {
+                font-size: 3em;
+            }
+            
+            .logo-billboard {
+                height: 60px;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .billboard-container {
+                padding: 30px 20px;
+            }
+            
+            .pair-title {
+                font-size: 2em;
+            }
+            
+            .final-price {
+                font-size: 2.5em;
+            }
+
+            .logo-billboard {
+                height: 50px;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="billboard-container">
+        <div class="logo-container">
+            <img src="/static/logo-1a1cripto.png" alt="1A1 Cripto" class="logo-billboard">
+        </div>
+        
+        <div class="pair-title">USDT / BRL</div>
+        
+        <div class="price-display">
+            <div id="loading" class="loading">Carregando cotação...</div>
+            
+            <div id="price-content" style="display: none;">
+                <div class="spot-price">Preço SPOT:</div>
+                <div class="spot-value" id="spot-value">R$ 0,0000</div>
+                
+                <div class="spread-info" id="spread-info">Spread: 1.000 (0.00%)</div>
+                
+                <div class="final-price" id="final-price">R$ 0,0000</div>
+                <div class="currency">por USDT</div>
+            </div>
+            
+            <div id="error-content" style="display: none;">
+                <div class="error">Erro ao carregar cotação</div>
+            </div>
+        </div>
+        
+        <div class="update-info">
+            <div>Atualização automática a cada 5 segundos</div>
+            <div id="last-update">Última atualização: --:--:--</div>
+        </div>
+    </div>
+
+    <script>
+        // Obter spread da URL
+        function getSpreadFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const spread = parseFloat(urlParams.get('spread')) || 1.0;
+            
+            // Validar spread
+            if (spread < 0.5 || spread > 2.0) {
+                return 1.0;
+            }
+            
+            return spread;
+        }
+
+        // Atualizar título da página
+        function updatePageTitle(preco, spread) {
+            const percentual = ((spread - 1) * 100).toFixed(2);
+            document.getElementById('page-title').textContent = `R$ ${preco.toFixed(4)} (${spread}) - 1A1 Cripto Billboard`;
+        }
+
+        // Carregar cotação
+        async function carregarCotacao() {
+            try {
+                const spread = getSpreadFromUrl();
+                const response = await fetch(`/api/billboard-cotacao?spread=${spread}`);
+                
+                if (!response.ok) {
+                    throw new Error('Erro na resposta da API');
+                }
+                
+                const data = await response.json();
+                
+                // Atualizar valores na interface
+                document.getElementById('spot-value').textContent = `R$ ${data.preco_base.toFixed(4)}`;
+                document.getElementById('spread-info').textContent = `Spread: ${data.spread.toFixed(3)} (${data.percentual_spread >= 0 ? '+' : ''}${data.percentual_spread.toFixed(2)}%)`;
+                document.getElementById('final-price').textContent = `R$ ${data.preco_com_spread.toFixed(4)}`;
+                
+                // Atualizar título da página
+                updatePageTitle(data.preco_com_spread, data.spread);
+                
+                // Atualizar horário
+                const agora = new Date();
+                const horario = agora.toLocaleTimeString('pt-BR');
+                document.getElementById('last-update').textContent = `Última atualização: ${horario}`;
+                
+                // Mostrar conteúdo
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error-content').style.display = 'none';
+                document.getElementById('price-content').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erro ao carregar cotação:', error);
+                
+                // Mostrar erro
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('price-content').style.display = 'none';
+                document.getElementById('error-content').style.display = 'block';
+            }
+        }
+
+        // Carregar dados iniciais
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarCotacao();
+        });
+
+        // Atualizar a cada 5 segundos
+        setInterval(carregarCotacao, 5000);
+    </script>
+</body>
+</html>
+

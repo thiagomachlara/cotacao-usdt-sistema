@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Cotação USDT/BRL - 1A1 Cripto</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            height: 60px;
+            width: auto;
+            max-width: 300px;
+            object-fit: contain;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        /* Seção de Cotações Principais */
+        .cotacoes-principais {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .cotacao-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cotacao-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .cotacao-card.spot {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-color: #ffc107;
+        }
+
+        .cotacao-card.cliente-05 {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border-color: #17a2b8;
+        }
+
+        .cotacao-card.cliente-065 {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #28a745;
+        }
+
+        .cotacao-titulo {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .cotacao-valor {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .cotacao-subtitulo {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .ultima-atualizacao {
+            font-size: 0.8em;
+            color: #6c757d;
+        }
+
+        /* Calculadora Simplificada */
+        .calculadora {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .calculadora h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .calc-input-group {
+            margin-bottom: 20px;
+        }
+
+        .calc-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .calc-input-group input, .calc-input-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .calc-input-group input:focus, .calc-input-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .resultado-rapido {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 5px solid #3498db;
+        }
+
+        .resultado-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .resultado-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            background: #e8f5e8;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .percentual-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .percentual-btn {
+            padding: 12px;
+            background: #e9ecef;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .percentual-btn:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .percentual-btn.active {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .cotacoes-principais {
+                grid-template-columns: 1fr;
+            }
+
+            .calc-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cotacao-valor {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="logo-1a1cripto.png" alt="1A1 Cripto" class="logo">
+            </div>
+            <h1>Sistema de Cotação USDT/BRL</h1>
+            <p>Cotações em tempo real com atualizações a cada 5 segundos</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Cotações Principais -->
+            <div class="cotacoes-principais">
+                <div class="cotacao-card spot">
+                    <div class="cotacao-titulo">📊 Preço SPOT</div>
+                    <div class="cotacao-valor" id="spot-valor">R$ 0,0000</div>
+                    <div class="cotacao-subtitulo">Preço base da API</div>
+                    <div class="ultima-atualizacao" id="spot-atualizacao">--:--:--</div>
+                </div>
+
+                <div class="cotacao-card cliente-05">
+                    <div class="cotacao-titulo">🏢 Brasil OTC (0.5%)</div>
+                    <div class="cotacao-valor" id="cotacao-05-valor">R$ 0,0000</div>
+                    <div class="cotacao-subtitulo">Preço para cliente 0.5%</div>
+                    <div class="ultima-atualizacao" id="cotacao-05-atualizacao">--:--:--</div>
+                </div>
+
+                <div class="cotacao-card cliente-065">
+                    <div class="cotacao-titulo">👤 Cliente Feitosa (0.65%)</div>
+                    <div class="cotacao-valor" id="cotacao-065-valor">R$ 0,0000</div>
+                    <div class="cotacao-subtitulo">Preço para cliente 0.65%</div>
+                    <div class="ultima-atualizacao" id="cotacao-065-atualizacao">--:--:--</div>
+                </div>
+            </div>
+
+            <!-- Calculadora Simplificada -->
+            <div class="calculadora">
+                <h2>🧮 Calculadora de Volume</h2>
+                <div class="calc-grid">
+                    <div>
+                        <div class="calc-input-group">
+                            <label>Selecione o Cliente:</label>
+                            <div class="percentual-buttons">
+                                <div class="percentual-btn" onclick="selecionarPercentual(0.5, this)">
+                                    Brasil OTC (0.5%)
+                                </div>
+                                <div class="percentual-btn" onclick="selecionarPercentual(0.65, this)">
+                                    Cliente Feitosa (0.65%)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="calc-input-group">
+                            <label for="valor-reais">Valor em Reais (R$):</label>
+                            <input type="number" id="valor-reais" step="0.01" placeholder="Ex: 700000" oninput="calcularAutomatico()">
+                        </div>
+                    </div>
+
+                    <div class="resultado-rapido">
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">💡 Resultado Automático</h3>
+                        <div id="resultado-automatico">
+                            <div class="loading">Selecione um cliente e digite o valor</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let percentualSelecionado = null;
+        let cotacaoAtual = {
+            spot: 0,
+            cotacao_05: 0,
+            cotacao_065: 0
+        };
+
+        // Carregar dados iniciais
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarCotacoes();
+        });
+
+        async function carregarCotacoes() {
+            try {
+                const response = await fetch('/api/cotacoes-rapidas');
+                const data = await response.json();
+                
+                cotacaoAtual = data;
+                
+                // Atualizar valores na interface
+                document.getElementById('spot-valor').textContent = `R$ ${data.preco_base.toFixed(4)}`;
+                document.getElementById('cotacao-05-valor').textContent = `R$ ${data.cotacao_05.toFixed(4)}`;
+                document.getElementById('cotacao-065-valor').textContent = `R$ ${data.cotacao_065.toFixed(4)}`;
+                
+                // Atualizar horários
+                const agora = new Date();
+                const horario = agora.toLocaleTimeString('pt-BR');
+                document.getElementById('spot-atualizacao').textContent = horario;
+                document.getElementById('cotacao-05-atualizacao').textContent = horario;
+                document.getElementById('cotacao-065-atualizacao').textContent = horario;
+                
+                // Recalcular automaticamente se há valores
+                calcularAutomatico();
+                
+            } catch (error) {
+                console.error('Erro ao carregar cotações:', error);
+            }
+        }
+
+        function selecionarPercentual(percentual, btn) {
+            // Remover seleção anterior
+            document.querySelectorAll('.percentual-btn').forEach(b => b.classList.remove('active'));
+            
+            // Selecionar atual
+            btn.classList.add('active');
+            percentualSelecionado = percentual;
+            
+            // Calcular automaticamente
+            calcularAutomatico();
+        }
+
+        function calcularAutomatico() {
+            const valorReais = document.getElementById('valor-reais').value;
+            const resultadoDiv = document.getElementById('resultado-automatico');
+            
+            if (!percentualSelecionado || !valorReais || valorReais <= 0) {
+                resultadoDiv.innerHTML = '<div class="loading">Selecione um cliente e digite o valor</div>';
+                return;
+            }
+
+            // Determinar preço baseado no percentual selecionado
+            let precoCliente;
+            let nomeCliente;
+            
+            if (percentualSelecionado === 0.5) {
+                precoCliente = cotacaoAtual.cotacao_05;
+                nomeCliente = "Brasil OTC";
+            } else {
+                precoCliente = cotacaoAtual.cotacao_065;
+                nomeCliente = "Cliente Feitosa";
+            }
+            
+            // Calcular USDT necessário
+            const usdtNecessario = parseFloat(valorReais) / precoCliente;
+            
+            // Nosso custo (0.25% acima do spot)
+            const precoCusto = cotacaoAtual.preco_base * 1.0025;
+            
+            resultadoDiv.innerHTML = `
+                <div class="resultado-item">
+                    <span>Cliente:</span>
+                    <span><strong>${nomeCliente} (${percentualSelecionado}%)</strong></span>
+                </div>
+                <div class="resultado-item">
+                    <span>Preço para cliente:</span>
+                    <span>R$ ${precoCliente.toFixed(4)}</span>
+                </div>
+                <div class="resultado-item">
+                    <span>Valor em reais:</span>
+                    <span>R$ ${parseFloat(valorReais).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                </div>
+                <div class="resultado-item">
+                    <span>Nosso custo (0.25%):</span>
+                    <span>R$ ${precoCusto.toFixed(4)}</span>
+                </div>
+                <div class="resultado-item">
+                    <span>💰 USDT Necessário:</span>
+                    <span><strong>${usdtNecessario.toFixed(2)} USDT</strong></span>
+                </div>
+            // Atualizar cotação a cada 5 segundos para acompanhar oscilações
+        setInterval(carregarCotacoes, 5000); </script>
+</body>
+</html>
+
